@@ -6,7 +6,7 @@ require 'yaml'
 
 module AfterWriteHooks
   class SQS
-    def self.run(config_file_path, s3_bucket, s3_path)
+    def self.run(config_file_path, s3_bucket, s3_path, sqs_prefix)
       event_type = s3_path.split('/')[1]
       queue_configs = self.config(config_file_path)['queues']
       default_config = queue_configs['default']
@@ -15,6 +15,8 @@ module AfterWriteHooks
       configs.each do |queue_config|
         # like "someevent-in-demo" or "someevent-in-production"
         queue_name = queue_config['name'] || "#{event_type}-in-#{s3_bucket.split('-').last}"
+        queue_name = sqs_prefix + queue_name
+
         sqs = AWS::SQS.new(
           access_key_id: queue_config['access_key_id'],
           secret_access_key: queue_config['secret_access_key'],
