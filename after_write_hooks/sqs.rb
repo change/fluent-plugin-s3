@@ -9,18 +9,20 @@ module AfterWriteHooks
     QUEUE_SUFFIX = 'redshift_etl'
 
     # @param [string] config_file_path
-    #   The config file contains the list of SQS queues
+    #   The config file contains the access key, secret key, and region for the SQS queue
     #   Example: "/etc/td-agent/sqs.conf"
     # @param [string] s3_bucket
     #   Example: "change-fluentd-production"
     # @param [string] s3_path
     #   The key in S3
     #   Example: "events/petition_view/production-change_main_fluentd_hub-00/2015/05/28/21_0.json"
-    def self.run(config_file_path, s3_bucket, s3_path)
+    # @param [string] environment
+    #   Example: "development", "staging", "production"
+    # @param [string] event_name
+    #   Example: "petition_view", "create_petition"
+    def self.run(config_file_path, s3_bucket, s3_path, environment, event_name)
       queue_config = YAML.load_file(config_file_path)
-      environment = s3_bucket.split('-').last  # demo, production, staging, etc.
       queue_name = "#{environment}-#{QUEUE_SUFFIX}" # production-redshift_etl, staging-redshift_etl, etc.
-      event_name = s3_path.split('/')[1] # petition_view, share_petition, etc.
 
       sqs = AWS::SQS.new(
         access_key_id: queue_config['access_key_id'],
