@@ -21,6 +21,7 @@ class S3WithSqsOutput < Fluent::TimeSlicedOutput
   end
 
   config_param :path, :string, :default => ""
+  config_param :sqs_prefix, :string, :default => ""
   config_param :time_format, :string, :default => nil
 
   include SetTagKeyMixin
@@ -40,8 +41,6 @@ class S3WithSqsOutput < Fluent::TimeSlicedOutput
   config_param :check_apikey_on_start, :bool, :default => true
   config_param :proxy_uri, :string, :default => nil
   config_param :reduced_redundancy, :bool, :default => false
-  config_param :environment, :string, :default => "development"
-  config_param :tag_name, :string
   config_param :after_flush, :default => [] do |val|
     val.split(',').collect {|v| v.strip }
   end
@@ -191,8 +190,8 @@ class S3WithSqsOutput < Fluent::TimeSlicedOutput
 
       @after_flush.each_with_index do |after_flush_cmd, i|
         config_file = @after_flush_config[i]
-        after_hook_succeeded = system(after_flush_cmd, config_file, @s3_bucket, s3path, @environment, @tag_name)
-        log.info "After flush command \"#{after_flush_cmd} #{config_file} #{@s3_bucket} #{s3path}\" #{@tag_name} exited with non-zero status, ignoring." unless after_hook_succeeded
+        after_hook_succeeded = system(after_flush_cmd, config_file, @s3_bucket, s3path, sqs_prefix)
+        log.info "After flush command \"#{after_flush_cmd} #{config_file} #{@s3_bucket} #{s3path} #{sqs_prefix}\" #{@tag} exited with non-zero status, ignoring." unless after_hook_succeeded
       end
     ensure
       tmp.close(true) rescue nil
