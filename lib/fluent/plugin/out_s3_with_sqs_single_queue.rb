@@ -2,7 +2,7 @@ module Fluent
 
   require 'fluent/mixin/config_placeholders'
 
-  class S3WithSqsOutput < Fluent::TimeSlicedOutput
+  class S3WithSqsSingleQueueOutput < Fluent::TimeSlicedOutput
     Fluent::Plugin.register_output('s3_with_sqs_single_queue', self)
 
     unless method_defined?(:log)
@@ -192,7 +192,7 @@ module Fluent
         @after_flush.each_with_index do |after_flush_cmd, i|
           config_file = @after_flush_config[i]
           after_hook_succeeded = system(after_flush_cmd, config_file, @s3_bucket, s3path, @environment, @tag_name)
-          log.info "After flush command \"#{after_flush_cmd} #{config_file} #{@s3_bucket} #{s3path}\" #{@tag_name} exited with non-zero status, ignoring." unless after_hook_succeeded
+          log.info "After flush command \"#{after_flush_cmd} #{config_file} #{@s3_bucket} #{s3path} #{@environment} #{@tag_name}\" exited with non-zero status, ignoring." unless after_hook_succeeded
         end
       ensure
         tmp.close(true) rescue nil
