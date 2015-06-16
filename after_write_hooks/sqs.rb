@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
-require 'aws-sdk'
+require 'aws-sdk-v1'
 require 'json'
 require 'yaml'
 
 module AfterWriteHooks
   class SQS
-    def self.run(config_file_path, s3_bucket, s3_path, sqs_prefix)
+    def self.run(config_file_path, s3_bucket, s3_path, sqs_prefix = '')
       event_type = s3_path.split('/')[1]
       queue_configs = self.config(config_file_path)['queues']
       default_config = queue_configs['default']
@@ -26,6 +26,8 @@ module AfterWriteHooks
         queue = sqs.queues.named(queue_name)
         queue.send_message(message.to_json)
       end
+    rescue AWS::SQS::Errors::NonExistentQueue
+      nil
     end
 
     def self.config(config_file_path)

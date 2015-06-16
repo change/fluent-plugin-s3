@@ -190,8 +190,12 @@ class S3WithSqsOutput < Fluent::TimeSlicedOutput
 
       @after_flush.each_with_index do |after_flush_cmd, i|
         config_file = @after_flush_config[i]
-        after_hook_succeeded = system(after_flush_cmd, config_file, @s3_bucket, s3path, sqs_prefix)
-        log.info "After flush command \"#{after_flush_cmd} #{config_file} #{@s3_bucket} #{s3path} #{sqs_prefix}\" #{@tag} exited with non-zero status, ignoring." unless after_hook_succeeded
+        if config_file
+          after_hook_succeeded = system(after_flush_cmd, config_file, @s3_bucket, s3path, sqs_prefix)
+          log.info "After flush command \"#{after_flush_cmd} #{config_file} #{@s3_bucket} #{s3path} #{sqs_prefix}\" #{@tag} exited with non-zero status, ignoring." unless after_hook_succeeded
+        else
+          log.info "No config file present for #{after_flush_cmd}"
+        end
       end
     ensure
       tmp.close(true) rescue nil
