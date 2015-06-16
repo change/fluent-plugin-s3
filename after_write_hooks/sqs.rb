@@ -26,8 +26,8 @@ module AfterWriteHooks
         queue = sqs.queues.named(queue_name)
         queue.send_message(message.to_json)
       end
-    rescue AWS::SQS::Errors::NonExistentQueue
-      nil
+    rescue AWS::SQS::Errors::NonExistentQueue => e
+      STDERR.puts e.message
     end
 
     def self.config(config_file_path)
