@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/lib64/fluent/ruby/bin/ruby
 
 require 'aws-sdk-v1'
 require 'json'
