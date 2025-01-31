@@ -1,3 +1,5 @@
+> This fork is no longer maintained.
+
 = Amazon S3 output plugin for {Fluentd}[http://github.com/fluent/fluentd]
 
 == Overview
